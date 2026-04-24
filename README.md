@@ -1,68 +1,97 @@
 # Tracely — Observability Primitives
 
-Unified observability library for Rust: distributed tracing, metrics, and structured logging in one package.
+Unified observability library for Rust: distributed tracing, metrics, and structured logging. Wraps OpenTelemetry, metrics, and tracing crates for ergonomic all-in-one observability. Supports OTLP, Prometheus, Jaeger, and Zipkin exports.
 
-## Crates
+## Overview
 
-| Crate | Path | Description |
-|-------|------|-------------|
-| tracely-core | `crates/tracely-core` | Core observability primitives |
-| tracely-sentinel | `crates/tracely-sentinel` | Monitoring and alerting |
+**Tracely** is the canonical observability layer for the Phenotype ecosystem. It provides a unified, zero-allocation API for distributed tracing, metrics collection, and structured logging—all built on battle-tested crates (tracing, metrics, opentelemetry) without reimplementation.
 
-## Installation
+**Core Mission**: Eliminate observability friction by providing one ergonomic API for spans, metrics, and logs, with seamless export to any backend.
 
-```toml
-[dependencies]
-tracely-core = { workspace = true }
-tracely-sentinel = { workspace = true }
-```
+## Technology Stack
 
-## Workspace Note
-
-This workspace combines previously separate observability crates:
-- `phenoSentinel` → merged as `tracely-sentinel`
-
-## Features
-
-- **Distributed Tracing**: OpenTelemetry-compatible spans
-- **Metrics**: Counters, gauges, histograms
-- **Structured Logging**: Zero-allocation JSON logs
+- **Language**: Rust (Edition 2024)
+- **Core Crates**:
+  - `tracing` (0.1) — Span and event collection
+  - `metrics` (0.21) — Counters, gauges, histograms
+  - `opentelemetry` (0.21) — OTLP export and context propagation
 - **Exporters**: OTLP, Prometheus, Jaeger, Zipkin
+- **Serialization**: serde_json
+- **Performance**: Criterion benchmarks; zero-allocation log path
 
-## Installation
+## Key Features
 
-```toml
-[dependencies]
-tracely = { git = "https://github.com/KooshaPari/tracely" }
+- **Distributed Tracing**: OpenTelemetry-compatible spans with automatic context propagation
+- **Metrics**: Ergonomic macros for counters, gauges, histograms with optional dimensions
+- **Structured Logging**: Zero-allocation JSON logging macros
+- **Multiple Exporters**: OTLP, Prometheus, Jaeger, Zipkin out-of-the-box
+- **Unified API**: Single init call sets up all three observability pillars
+- **Zero-Cost Abstractions**: Compiles down to efficient instrumentation
+
+## Quick Start
+
+```bash
+# Clone and explore
+git clone <repo-url>
+cd Tracely
+
+# Build and test
+cargo build --release
+cargo test --workspace
+cargo clippy -- -D warnings    # Zero warnings enforced
+
+# View documentation
+cargo doc --open
+
+# Run performance benchmarks
+cargo bench
 ```
 
-## Usage
+## Project Structure
+
+```
+Tracely/
+├── crates/
+│   ├── tracely-core/     # Core observability primitives & macros
+│   └── tracely-sentinel/ # Monitoring, alerting, phenoSentinel integration
+├── src/
+│   ├── tracing/          # Span lifecycle, context propagation
+│   ├── metrics/          # Counter, gauge, histogram macros
+│   ├── logging/          # Structured JSON log macros
+│   ├── export/           # OTLP, Prometheus, Jaeger, Zipkin exporters
+│   └── config.rs         # TracingConfig builder
+└── CLAUDE.md, AGENTS.md  # Governance & agent contract
+```
+
+## Usage Example
 
 ```rust
 use tracely::{tracer, metrics, log};
 
-// Trace
+// Initialize observability
+tracely::init_with_defaults()?;
+
+// Tracing
 let span = tracer::start("process_request");
 defer { span.end(); }
 
 // Metrics
 metrics::counter!("requests_total").inc();
-metrics::histogram!("request_duration").observe(duration);
+metrics::histogram!("request_duration_ms").observe(duration_ms);
 
-// Log
-log::info!("Request processed", { "duration_ms": 42 });
+// Logging
+log::info!("Request processed", { "duration_ms": 42, "user_id": user_id });
 ```
 
-## Architecture
+## Quality Requirements
 
-```
-src/
-├── tracing/      # Distributed tracing
-├── metrics/      # Metrics collection
-├── logging/      # Structured logging
-└── exporters/   # OTLP, Prometheus, etc.
-```
+- `cargo clippy -- -D warnings` — **zero warnings** required
+- `cargo test --workspace` — all tests pass
+- `cargo doc` — zero missing doc warnings on public API
+- Benchmarks: verify zero-allocation log path via criterion
 
-## License
+## Related Phenotype Projects
 
-MIT
+- **[PhenoObservability](../PhenoObservability)** — Platform-wide observability infrastructure
+- **[Tracera](../Tracera)** — Distributed tracing backend and storage
+- **[cheap-llm-mcp](../cheap-llm-mcp)** — Uses Tracely for LLM model routing metrics
