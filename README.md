@@ -1,3 +1,10 @@
+> **Pinned references (Phenotype-org)**
+> - MSRV: see rust-toolchain.toml
+> - cargo-deny config: see deny.toml
+> - cargo-audit: rustsec/audit-check@v2 weekly
+> - Branch protection: 1 reviewer required, no force-push
+> - Authority: phenotype-org-governance/SUPERSEDED.md
+
 # Tracely — Observability Primitives
 
 Unified observability library for Rust: distributed tracing, metrics, and structured logging. Wraps OpenTelemetry, metrics, and tracing crates for ergonomic all-in-one observability. Supports OTLP, Prometheus, Jaeger, and Zipkin exports.
