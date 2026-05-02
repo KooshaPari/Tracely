@@ -1,6 +1,11 @@
-# These are supported funding model platforms
-
-github: KooshaPari
+github: []
 patreon:
+open_collective:
 ko_fi:
-custom: ["https://phenotype.space/sponsor"]
+tidelift: "npm/[email protected]"
+community_bridge:
+liberapay:
+issuehunt:
+otechie:
+lfx_crowdfunding:
+custom:
