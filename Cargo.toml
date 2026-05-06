@@ -1,8 +1,9 @@
 [workspace]
 resolver = "2"
 members = [
-    "crates/tracely-core",
-    "crates/tracely-sentinel",
+  "crates/helix-tracing",
+  "crates/tracely-core",
+  "crates/tracely-sentinel",
 ]
 
 [workspace.package]
