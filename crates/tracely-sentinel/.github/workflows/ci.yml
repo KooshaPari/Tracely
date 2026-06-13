@@ -19,7 +19,7 @@ jobs:
 
       
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # pinned from @master
         with:
           toolchain: $123matrix.rust-version125
 
@@ -35,4 +35,4 @@ jobs:
 
   phenotype-validate:
     runs-on: ubuntu-latest
-    uses: KooshaPari/phenotypeActions/.github/workflows/validate-governance.yml@main
+    uses: KooshaPari/phenotypeActions/.github/workflows/validate-governance.yml@0000000000000000000000000000000000000000 # placeholder SHA; source 404s; replace when reachable

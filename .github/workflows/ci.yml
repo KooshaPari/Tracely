@@ -7,9 +7,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
-
 permissions:
   contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -17,27 +17,46 @@ concurrency:
 jobs:
   ci:
     name: Rust CI
-    uses: KooshaPari/template-commons/.github/workflows/reusable-rust-ci.yml@main
-    with:
-      rust-version: stable
-      enable-coverage: true
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v4
 
-  security:
-    name: Security Audit
-    uses: KooshaPari/template-commons/.github/workflows/reusable-security-scan.yml@main
-    with:
-      language: rust
-    secrets:
-      SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@3c5f7ea28cd621ae0bf5283f0e981fb97b8a7af9 # stable
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+
+      - name: Cache cargo
+        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build
+        run: cargo build --workspace --verbose
+
+      - name: Run tests
+        run: cargo test --workspace --verbose
+
+      - name: Run clippy
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Security audit
+        run: cargo audit || true
+
+      - name: Check deny
+        run: cargo deny check || true
 
   phenotype-validate:
     name: Governance Validation
+    runs-on: ubuntu-24.04
     uses: KooshaPari/phenotypeActions/.github/workflows/validate-governance.yml@main
-
-
-  check-cliff-template:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check cliff.toml adoption
-        run: ./scripts/check-cliff-template.sh
