@@ -1,3 +1,7 @@
+> **Work-state:** beta — `[#######---] 70%`
+>
+> Observability primitives unified (tracing+metrics+logging). Tests + benchmarks wired. Exporters (OTLP, Prometheus, Jaeger, Zipkin) ported. Pending: edge-case stress tests, load-balancer integration tests, perf parity verification.
+
 > **Pinned references (Phenotype-org)**
 > - MSRV: see rust-toolchain.toml
 > - cargo-deny config: see deny.toml
