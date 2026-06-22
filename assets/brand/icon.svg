@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="Tracely — distributed tracing">
+  <defs>
+    <linearGradient id="tr-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0e1116"/>
+      <stop offset="1" stop-color="#090a0c"/>
+    </linearGradient>
+    <linearGradient id="tr-bar1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="tr-bar2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c4b5fd"/>
+      <stop offset="1" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="tr-bar3" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#8b5cf6"/>
+      <stop offset="1" stop-color="#6d3fd0"/>
+    </linearGradient>
+    <linearGradient id="tr-node" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7ebab5"/>
+      <stop offset="1" stop-color="#3a8d87"/>
+    </linearGradient>
+    <linearGradient id="tr-chevron" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#a78bfa"/>
+      <stop offset="1" stop-color="#7ebab5"/>
+    </linearGradient>
+    <radialGradient id="tr-glow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#a78bfa" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="tr-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000" flood-opacity="0.55"/>
+    </filter>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="96" ry="96" fill="url(#tr-bg)"/>
+  <circle cx="256" cy="256" r="220" fill="url(#tr-glow)"/>
+
+  <!-- timeline backdrop -->
+  <g stroke="#a78bfa" stroke-opacity="0.18" stroke-width="1" stroke-dasharray="3 5">
+    <line x1="100" y1="184" x2="424" y2="184"/>
+    <line x1="100" y1="256" x2="424" y2="256"/>
+    <line x1="100" y1="328" x2="424" y2="328"/>
+  </g>
+
+  <!-- time markers -->
+  <g fill="#a78bfa" opacity="0.5">
+    <circle cx="148" cy="184" r="2"/>
+    <circle cx="200" cy="184" r="2"/>
+    <circle cx="252" cy="184" r="2"/>
+    <circle cx="304" cy="184" r="2"/>
+    <circle cx="356" cy="184" r="2"/>
+    <circle cx="148" cy="328" r="2"/>
+    <circle cx="200" cy="328" r="2"/>
+    <circle cx="252" cy="328" r="2"/>
+    <circle cx="304" cy="328" r="2"/>
+    <circle cx="356" cy="328" r="2"/>
+  </g>
+
+  <!-- start node (hex) -->
+  <g filter="url(#tr-shadow)">
+    <polygon points="100,256 116,247 132,256 132,272 116,281 100,272"
+             fill="url(#tr-node)" stroke="#7ebab5" stroke-width="2"/>
+    <circle cx="116" cy="264" r="3" fill="#a7d4cf"/>
+  </g>
+
+  <!-- span bar 1 (top) -->
+  <g filter="url(#tr-shadow)">
+    <rect x="148" y="172" width="180" height="24" rx="6" fill="url(#tr-bar1)" stroke="#c4b5fd" stroke-width="1.5"/>
+    <rect x="148" y="172" width="40"  height="24" rx="6" fill="#c4b5fd" opacity="0.6"/>
+    <rect x="148" y="172" width="180" height="6"  rx="3" fill="#c4b5fd" opacity="0.3"/>
+  </g>
+
+  <!-- span bar 2 (middle, wider) -->
+  <g filter="url(#tr-shadow)">
+    <rect x="148" y="244" width="240" height="24" rx="6" fill="url(#tr-bar2)" stroke="#ddd6fe" stroke-width="1.5"/>
+    <rect x="148" y="244" width="60"  height="24" rx="6" fill="#ddd6fe" opacity="0.7"/>
+    <rect x="148" y="244" width="240" height="6"  rx="3" fill="#ddd6fe" opacity="0.35"/>
+  </g>
+
+  <!-- span bar 3 (bottom, narrower, offset right) -->
+  <g filter="url(#tr-shadow)">
+    <rect x="200" y="316" width="140" height="24" rx="6" fill="url(#tr-bar3)" stroke="#a78bfa" stroke-width="1.5"/>
+    <rect x="200" y="316" width="32"  height="24" rx="6" fill="#a78bfa" opacity="0.6"/>
+    <rect x="200" y="316" width="140" height="6"  rx="3" fill="#a78bfa" opacity="0.3"/>
+  </g>
+
+  <!-- causal chevron connecting spans -->
+  <g>
+    <polygon points="316,316 332,328 316,340" fill="url(#tr-chevron)"/>
+    <polygon points="376,316 392,328 376,340" fill="url(#tr-chevron)" opacity="0.8"/>
+  </g>
+
+  <!-- vertical causal guides (dotted) -->
+  <g stroke="#a78bfa" stroke-opacity="0.35" stroke-width="1.5" stroke-dasharray="3 4">
+    <line x1="148" y1="196" x2="148" y2="244"/>
+    <line x1="328" y1="268" x2="328" y2="316"/>
+  </g>
+
+  <!-- corner ticks -->
+  <g stroke="#7ebab5" stroke-width="1.5" opacity="0.6" stroke-linecap="round">
+    <line x1="80"  y1="156" x2="96"  y2="156"/>
+    <line x1="80"  y1="156" x2="80"  y2="172"/>
+    <line x1="432" y1="156" x2="416" y2="156"/>
+    <line x1="432" y1="156" x2="432" y2="172"/>
+    <line x1="80"  y1="356" x2="96"  y2="356"/>
+    <line x1="80"  y1="356" x2="80"  y2="340"/>
+    <line x1="432" y1="356" x2="416" y2="356"/>
+    <line x1="432" y1="356" x2="432" y2="340"/>
+  </g>
+</svg>
