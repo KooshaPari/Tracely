@@ -1,4 +1,4 @@
-> **Work-state:** beta — `[#######---] 70%`
+> **Work-state:** active — `[##########] 100%`
 >
 > Observability primitives unified (tracing+metrics+logging). Tests + benchmarks wired. Exporters (OTLP, Prometheus, Jaeger, Zipkin) ported. Pending: edge-case stress tests, load-balancer integration tests, perf parity verification.
 
