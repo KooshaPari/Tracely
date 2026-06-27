@@ -1,6 +1,19 @@
-> **Work-state:** beta — `[#######---] 70%`
+> **Work-state:** beta
+> `[#######---] 70%`
 >
-> Observability primitives unified (tracing+metrics+logging). Tests + benchmarks wired. Exporters (OTLP, Prometheus, Jaeger, Zipkin) ported. Pending: edge-case stress tests, load-balancer integration tests, perf parity verification.
+> Tracely is a unified observability library for Rust that wraps tracing, metrics, and structured logging behind one ergonomic API, with export support for OTLP, Prometheus, Jaeger, and Zipkin.
+
+## Quick Start
+
+```bash
+cargo build --release
+cargo test --workspace
+cargo clippy -- -D warnings
+```
+
+## Usage
+
+Initialize Tracely once at startup, then use its tracing, metrics, and logging macros throughout your application. The library is designed to keep instrumentation consistent across services while staying thin over the underlying ecosystem crates.
 
 > **Pinned references (Phenotype-org)**
 > - MSRV: see rust-toolchain.toml
@@ -38,25 +51,6 @@ Unified observability library for Rust: distributed tracing, metrics, and struct
 - **Multiple Exporters**: OTLP, Prometheus, Jaeger, Zipkin out-of-the-box
 - **Unified API**: Single init call sets up all three observability pillars
 - **Zero-Cost Abstractions**: Compiles down to efficient instrumentation
-
-## Quick Start
-
-```bash
-# Clone and explore
-git clone <repo-url>
-cd Tracely
-
-# Build and test
-cargo build --release
-cargo test --workspace
-cargo clippy -- -D warnings    # Zero warnings enforced
-
-# View documentation
-cargo doc --open
-
-# Run performance benchmarks
-cargo bench
-```
 
 ## Project Structure
 
