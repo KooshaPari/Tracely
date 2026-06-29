@@ -12,6 +12,9 @@ pub enum CircuitBreakerError {
 
     #[error("Circuit breaker is half-open, request not allowed")]
     HalfOpen,
+
+    #[error("Invalid configuration: {0}")]
+    InvalidConfig(String),
 }
 
 /// Circuit breaker state
@@ -43,14 +46,27 @@ impl CircuitBreaker {
     ///
     /// - `failure_threshold`: Number of failures before opening
     /// - `recovery_timeout`: Time to wait before trying recovery
-    pub fn new(failure_threshold: usize, recovery_timeout: Duration) -> Self {
-        Self {
+    pub fn new(
+        failure_threshold: usize,
+        recovery_timeout: Duration,
+    ) -> Result<Self, CircuitBreakerError> {
+        if failure_threshold == 0 {
+            return Err(CircuitBreakerError::InvalidConfig(
+                "failure_threshold must be > 0".to_string(),
+            ));
+        }
+        if recovery_timeout.is_zero() {
+            return Err(CircuitBreakerError::InvalidConfig(
+                "recovery_timeout must be > 0".to_string(),
+            ));
+        }
+        Ok(Self {
             failure_threshold,
             recovery_timeout,
             failure_count: 0,
             last_failure: None,
             state: CircuitState::Closed,
-        }
+        })
     }
 
     /// Get current circuit state
@@ -166,13 +182,13 @@ mod tests {
 
     #[test]
     fn test_circuit_breaker_initial_state() {
-        let cb = CircuitBreaker::new(5, Duration::from_secs(60));
+        let cb = CircuitBreaker::new(5, Duration::from_secs(60)).unwrap();
         assert_eq!(cb.state(), CircuitState::Closed);
     }
 
     #[test]
     fn test_circuit_breaker_opens_on_threshold() {
-        let mut cb = CircuitBreaker::new(3, Duration::from_secs(60));
+        let mut cb = CircuitBreaker::new(3, Duration::from_secs(60)).unwrap();
 
         for _ in 0..3 {
             cb.record_failure();
@@ -183,12 +199,32 @@ mod tests {
 
     #[test]
     fn test_circuit_breaker_success_resets() {
-        let mut cb = CircuitBreaker::new(3, Duration::from_secs(60));
+        let mut cb = CircuitBreaker::new(3, Duration::from_secs(60)).unwrap();
 
         cb.record_failure();
         cb.record_failure();
         cb.record_success();
 
         assert_eq!(cb.failure_count, 0);
+    }
+
+    #[test]
+    fn test_circuit_breaker_zero_threshold_returns_error() {
+        let result = CircuitBreaker::new(0, Duration::from_secs(60));
+        assert!(result.is_err());
+        assert!(
+            result.unwrap_err().to_string().contains("failure_threshold"),
+            "Error should mention failure_threshold"
+        );
+    }
+
+    #[test]
+    fn test_circuit_breaker_zero_recovery_timeout_returns_error() {
+        let result = CircuitBreaker::new(5, Duration::ZERO);
+        assert!(result.is_err());
+        assert!(
+            result.unwrap_err().to_string().contains("recovery_timeout"),
+            "Error should mention recovery_timeout"
+        );
     }
 }

@@ -13,7 +13,7 @@
 //! ```rust
 //! use phenotype_sentinel::{RateLimiter, TokenBucket};
 //!
-//! let mut limiter = TokenBucket::new(100, 10); // 100 tokens, refill 10/sec
+//! let mut limiter = TokenBucket::new(100, 10).unwrap(); // 100 tokens, refill 10/sec
 //! if limiter.try_acquire() {
 //!     // proceed with request
 //! }
@@ -52,13 +52,13 @@ mod tests {
 
     #[test]
     fn test_rate_limiter_creation() {
-        let mut bucket = TokenBucket::new(10, 5);
+        let mut bucket = TokenBucket::new(10, 5).unwrap();
         assert!(bucket.try_acquire());
     }
 
     #[tokio::test]
     async fn test_circuit_breaker_initial_state() {
-        let cb = CircuitBreaker::new(5, std::time::Duration::from_secs(60));
+        let cb = CircuitBreaker::new(5, std::time::Duration::from_secs(60)).unwrap();
         assert_eq!(cb.state(), CircuitState::Closed);
     }
 
