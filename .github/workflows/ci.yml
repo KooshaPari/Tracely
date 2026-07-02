@@ -56,6 +56,10 @@ jobs:
       - name: Check deny
         run: cargo deny check || true
 
+  trace-gate:
+    name: FR Coverage Gate
+    uses: KooshaPari/phenotype-pm-core/.github/workflows/trace-gate.yml@main
+
   phenotype-validate:
     name: Governance Validation
     runs-on: ubuntu-24.04
