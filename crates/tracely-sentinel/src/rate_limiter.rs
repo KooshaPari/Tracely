@@ -39,11 +39,13 @@ impl TokenBucket {
     ///
     /// - `capacity`: Maximum tokens (burst size)
     /// - `refill_rate`: Tokens added per second
-    pub fn new(capacity: usize, refill_rate: usize) -> Self {
+    pub fn new(capacity: usize, refill_rate: usize) -> Result<Self, RateLimiterError> {
         if capacity == 0 {
-            panic!("Token bucket capacity must be > 0");
+            return Err(RateLimiterError::InvalidConfig(
+                "Token bucket capacity must be > 0".to_string()
+            ));
         }
-        Self { capacity, tokens: capacity, refill_rate, last_refill: Instant::now() }
+        Ok(Self { capacity, tokens: capacity, refill_rate, last_refill: Instant::now() })
     }
 
     fn refill(&mut self) {
@@ -95,11 +97,13 @@ impl LeakyBucket {
     ///
     /// - `capacity`: Maximum queue size
     /// - `leak_rate`: Requests processed per second
-    pub fn new(capacity: usize, leak_rate: usize) -> Self {
+    pub fn new(capacity: usize, leak_rate: usize) -> Result<Self, RateLimiterError> {
         if capacity == 0 {
-            panic!("Leaky bucket capacity must be > 0");
+            return Err(RateLimiterError::InvalidConfig(
+                "Leaky bucket capacity must be > 0".to_string()
+            ));
         }
-        Self { capacity, leak_rate, last_leak: Instant::now(), pending: 0 }
+        Ok(Self { capacity, leak_rate, last_leak: Instant::now(), pending: 0 })
     }
 
     fn leak(&mut self) {
@@ -134,24 +138,38 @@ mod tests {
 
     #[test]
     fn test_token_bucket_initial_full() {
-        let mut bucket = TokenBucket::new(10, 5);
+        let mut bucket = TokenBucket::new(10, 5).unwrap();
         assert!(bucket.try_acquire());
         assert_eq!(bucket.remaining(), 9);
     }
 
     #[test]
     fn test_token_bucket_exhausted() {
-        let mut bucket = TokenBucket::new(1, 5);
+        let mut bucket = TokenBucket::new(1, 5).unwrap();
         assert!(bucket.try_acquire());
         assert!(!bucket.try_acquire());
     }
 
     #[test]
     fn test_leaky_bucket_capacity() {
-        let mut bucket = LeakyBucket::new(3, 10);
+        let mut bucket = LeakyBucket::new(3, 10).unwrap();
         assert!(bucket.try_add());
         assert!(bucket.try_add());
         assert!(bucket.try_add());
         assert!(!bucket.try_add());
+    }
+
+    #[test]
+    fn test_token_bucket_zero_capacity_returns_error() {
+        let result = TokenBucket::new(0, 5);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("> 0"));
+    }
+
+    #[test]
+    fn test_leaky_bucket_zero_capacity_returns_error() {
+        let result = LeakyBucket::new(0, 10);
+        assert!(result.is_err());
+        assert!(result.unwrap_err().to_string().contains("> 0"));
     }
 }
