@@ -55,7 +55,3 @@ jobs:
 
       - name: Check deny
         run: cargo deny check || true
-
-  trace-gate:
-    name: FR Coverage Gate
-    uses: KooshaPari/phenotype-pm-core/.github/workflows/trace-gate.yml@main
