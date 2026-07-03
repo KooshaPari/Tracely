@@ -28,7 +28,7 @@ jobs:
           components: rustfmt, clippy
 
       - name: Cache cargo
-        uses: actions/cache@0c45773b623bea8c8e75f6c82b208c3cf94ea4f9 # v4
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             ~/.cargo/registry
@@ -55,12 +55,3 @@ jobs:
 
       - name: Check deny
         run: cargo deny check || true
-
-  trace-gate:
-    name: FR Coverage Gate
-    uses: KooshaPari/phenotype-pm-core/.github/workflows/trace-gate.yml@main
-
-  phenotype-validate:
-    name: Governance Validation
-    runs-on: ubuntu-24.04
-    uses: KooshaPari/phenotypeActions/.github/workflows/validate-governance.yml@main

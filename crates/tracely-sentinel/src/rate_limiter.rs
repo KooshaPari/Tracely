@@ -42,7 +42,7 @@ impl TokenBucket {
     pub fn new(capacity: usize, refill_rate: usize) -> Result<Self, RateLimiterError> {
         if capacity == 0 {
             return Err(RateLimiterError::InvalidConfig(
-                "Token bucket capacity must be > 0".to_string()
+                "Token bucket capacity must be > 0".to_string(),
             ));
         }
         Ok(Self { capacity, tokens: capacity, refill_rate, last_refill: Instant::now() })
@@ -100,7 +100,7 @@ impl LeakyBucket {
     pub fn new(capacity: usize, leak_rate: usize) -> Result<Self, RateLimiterError> {
         if capacity == 0 {
             return Err(RateLimiterError::InvalidConfig(
-                "Leaky bucket capacity must be > 0".to_string()
+                "Leaky bucket capacity must be > 0".to_string(),
             ));
         }
         Ok(Self { capacity, leak_rate, last_leak: Instant::now(), pending: 0 })
