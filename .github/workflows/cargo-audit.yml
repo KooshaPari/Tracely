@@ -2,12 +2,9 @@ name: Cargo Audit
 permissions:
   contents: read
 
-on:
-  workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
-
 
 on:
   workflow_dispatch:
