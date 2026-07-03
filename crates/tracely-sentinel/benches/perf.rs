@@ -15,17 +15,12 @@ use std::time::Duration;
 fn bench_token_bucket_try_acquire(c: &mut Criterion) {
     let mut group = c.benchmark_group("token_bucket");
     for capacity in [10usize, 100, 1000] {
-        group.bench_with_input(
-            BenchmarkId::new("try_acquire", capacity),
-            &capacity,
-            |b, &cap| {
-                b.iter(|| {
-                    let mut bucket =
-                        TokenBucket::new(cap, cap).expect("valid token bucket params");
-                    black_box(bucket.try_acquire())
-                });
-            },
-        );
+        group.bench_with_input(BenchmarkId::new("try_acquire", capacity), &capacity, |b, &cap| {
+            b.iter(|| {
+                let mut bucket = TokenBucket::new(cap, cap).expect("valid token bucket params");
+                black_box(bucket.try_acquire())
+            });
+        });
     }
     group.finish();
 }
@@ -33,8 +28,7 @@ fn bench_token_bucket_try_acquire(c: &mut Criterion) {
 fn bench_leaky_bucket_try_add(c: &mut Criterion) {
     c.bench_function("leaky_bucket/try_add", |b| {
         b.iter(|| {
-            let mut bucket =
-                LeakyBucket::new(1_000, 1_000).expect("valid leaky bucket params");
+            let mut bucket = LeakyBucket::new(1_000, 1_000).expect("valid leaky bucket params");
             black_box(bucket.try_add())
         });
     });
@@ -79,10 +73,8 @@ fn bench_circuit_breaker_success_reset(c: &mut Criterion) {
 // ---------------------------------------------------------------------------
 
 fn bench_bulkhead_acquire_release(c: &mut Criterion) {
-    let rt = tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .expect("tokio runtime");
+    let rt =
+        tokio::runtime::Builder::new_current_thread().enable_all().build().expect("tokio runtime");
 
     let mut group = c.benchmark_group("bulkhead");
     for partitions in [2usize, 8, 32] {

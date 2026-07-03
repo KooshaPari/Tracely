@@ -81,8 +81,8 @@ pub fn init_tracing(config: TracingConfig) -> Result<(), tracing_subscriber::uti
 pub fn build_subscriber(
     config: &TracingConfig,
 ) -> impl ::tracing::Subscriber + Send + Sync + 'static {
-    let filter = EnvFilter::try_new(config.level.as_str())
-        .unwrap_or_else(|_| EnvFilter::new("info"));
+    let filter =
+        EnvFilter::try_new(config.level.as_str()).unwrap_or_else(|_| EnvFilter::new("info"));
 
     let fmt_layer = tracing_subscriber::fmt::layer()
         .with_target(config.target)
