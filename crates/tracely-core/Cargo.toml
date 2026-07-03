@@ -36,3 +36,11 @@ otel = ["opentelemetry"]
 prometheus = ["dep:prometheus"]
 metrics = ["dep:metrics"]
 full = ["otel", "dep:prometheus", "dep:metrics"]
+
+[package.metadata.cargo-machete]
+# opentelemetry/prometheus/metrics are optional backend deps gated behind
+# the otel/prometheus/metrics/full features; no backend integration code
+# has landed yet, so cargo-machete can't see a use-site. serde is kept as
+# a direct dependency for the exported derive macros consumers rely on
+# even though this crate's own code only uses serde_json directly.
+ignored = ["opentelemetry", "prometheus", "metrics", "serde"]
