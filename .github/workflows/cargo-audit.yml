@@ -1,6 +1,7 @@
 name: Cargo Audit
 permissions:
   contents: read
+  checks: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
