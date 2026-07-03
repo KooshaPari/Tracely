@@ -20,7 +20,8 @@ fn bench_token_bucket_try_acquire(c: &mut Criterion) {
             &capacity,
             |b, &cap| {
                 b.iter(|| {
-                    let mut bucket = TokenBucket::new(cap, cap);
+                    let mut bucket =
+                        TokenBucket::new(cap, cap).expect("valid token bucket params");
                     black_box(bucket.try_acquire())
                 });
             },
@@ -32,7 +33,8 @@ fn bench_token_bucket_try_acquire(c: &mut Criterion) {
 fn bench_leaky_bucket_try_add(c: &mut Criterion) {
     c.bench_function("leaky_bucket/try_add", |b| {
         b.iter(|| {
-            let mut bucket = LeakyBucket::new(1_000, 1_000);
+            let mut bucket =
+                LeakyBucket::new(1_000, 1_000).expect("valid leaky bucket params");
             black_box(bucket.try_add())
         });
     });
