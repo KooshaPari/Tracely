@@ -1,0 +1,88 @@
+# ---------------------------------------------------------------------------
+# Flake detection — re-runs tests N times on schedule (WP-022, C07 L68)
+#
+# Identifies flaky tests by running the full suite multiple times and
+# reporting any non-deterministic failures.
+# ---------------------------------------------------------------------------
+
+name: Flake Detection
+
+on:
+  schedule:
+    # Nightly at 3am
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: "Number of test runs"
+        required: true
+        default: "10"
+        type: number
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  RUNS: ${{ github.event.inputs.runs || 10 }}
+  CARGO_TERM_COLOR: always
+
+jobs:
+  flake-detection:
+    name: Flake Check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: flake-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            flake-${{ runner.os }}-cargo-
+
+      - name: Run tests N times
+        id: flake
+        run: |
+          set -o pipefail
+          total=${{ env.RUNS }}
+          passed=0
+          failed=0
+          failures=""
+
+          for i in $(seq 1 "$total"); do
+            echo "--- Run $i / $total ---"
+            if cargo test --workspace --quiet 2>&1; then
+              passed=$((passed + 1))
+            else
+              failed=$((failed + 1))
+              failures="$failures run-$i"
+            fi
+          done
+
+          echo "passed=$passed" >> "$GITHUB_OUTPUT"
+          echo "failed=$failed" >> "$GITHUB_OUTPUT"
+          echo "failures=$failures" >> "$GITHUB_OUTPUT"
+
+          echo ""
+          echo "=== RESULTS: $passed/$total passed, $failed failed ==="
+
+      - name: Report flakiness
+        run: |
+          PASSED="${{ steps.flake.outputs.passed }}"
+          FAILED="${{ steps.flake.outputs.failed }}"
+          TOTAL=${{ env.RUNS }}
+
+          if [ "$FAILED" = "0" ]; then
+            echo "✅ No flaky tests detected ($PASSED/$TOTAL clean runs)"
+          else
+            echo "❌ Flaky tests detected! $FAILED of $TOTAL runs failed."
+            echo "Failures in:${{ steps.flake.outputs.failures }}"
+          fi

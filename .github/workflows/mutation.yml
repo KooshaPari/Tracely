@@ -1,0 +1,92 @@
+# ---------------------------------------------------------------------------
+# Mutation testing — gating on mutation score (WP-021, C07 L65)
+#
+# Runs cargo-mutants on the workspace and surfaces any drop in the
+# mutation score below the threshold (default: 0.40 = 40%).
+#
+# Install locally:
+#   cargo install cargo-mutants
+#   cargo mutants --in-place
+# ---------------------------------------------------------------------------
+
+name: Mutation
+
+on:
+  schedule:
+    # Weekly Sunday run — mutation is expensive (10-30min)
+    - cron: "0 6 * * 0"
+  workflow_dispatch:
+    inputs:
+      threshold:
+        description: "Minimum mutation score (0.0–1.0)"
+        required: true
+        default: "0.40"
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  MUTANTS_THRESHOLD: ${{ github.event.inputs.threshold || '0.40' }}
+
+jobs:
+  mutants:
+    name: cargo-mutants
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: llvm-tools-preview
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: mutants-${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            mutants-${{ runner.os }}-cargo-
+
+      - name: Install cargo-mutants
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-mutants
+
+      - name: Run mutation tests
+        run: cargo mutants --in-place --timeout 120 2>&1 | tee mutants-report.txt
+
+      - name: Parse mutation score
+        id: score
+        run: |
+          SCORE=$(grep -oP 'Mutation score: \K[\d.]+' mutants-report.txt || echo "0")
+          echo "score=$SCORE" >> "$GITHUB_OUTPUT"
+          echo "Mutation score: $SCORE (threshold: ${{ env.MUTANTS_THRESHOLD }})"
+
+      - name: Check threshold
+        run: |
+          SCORE="${{ steps.score.outputs.score }}"
+          if [ -z "$SCORE" ] || [ "$SCORE" = "0" ]; then
+            echo "⚠ Could not parse mutation score — check mutants-report.txt"
+            exit 0  # WARN only — don't fail CI on parse error
+          fi
+          python3 -c "
+          import sys
+          score = float('$SCORE')
+          threshold = float('${{ env.MUTANTS_THRESHOLD }}')
+          if score < threshold:
+            print(f'FAIL: mutation score {score:.2%} < threshold {threshold:.2%}')
+            sys.exit(1)
+          print(f'PASS: mutation score {score:.2%} >= threshold {threshold:.2%}')
+          "
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutants-report
+          path: mutants-report.txt

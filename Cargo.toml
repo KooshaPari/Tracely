@@ -13,4 +13,4 @@ repository = "https://github.com/KooshaPari/Tracely"
 authors = ["Koosha Pari <kooshapari@users.noreply.github.com>"]
 
 [workspace.dependencies]
-# Add shared dependencies here
+criterion = "0.5"
